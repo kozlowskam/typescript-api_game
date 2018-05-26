@@ -1,10 +1,9 @@
-import { JsonController, Get, Post, Put, HttpCode, Body, Param, NotFoundError } from 'routing-controllers'
+import { JsonController, Get, Post, Put, HttpCode, Body, Param, NotFoundError, BadRequestError } from 'routing-controllers'
 import Game, {randomColor, Color} from './entity'
-
-
+import {validate} from "class-validator";
 
 @JsonController()
-export default class ProductController {
+export default class GameController {
 
 @Get('/games')
 async allGames() {
@@ -24,12 +23,22 @@ async createGame(
 @Put('/games/:id')
 async updateGame(
     @Param('id') id: number,
-    @Body() update: Partial<Game>
+    @Body() update: {'color': Color, 'name': 'new name', 'board': 'board' }
 ) {
-    const game = await Game.findOne(id)
+    let game = await Game.findOne(id)
     if (!game) throw new NotFoundError('Game not found!')
 
-    return Game.merge(game, update).save()
+    Game.merge(game, update)
+
+    return validate(game).then(errors => { 
+        if (errors.length > 0) {
+            throw new BadRequestError(`wrong input!`)
+        } else {
+            game!.save()
+            return game
+        }
+    })
+    
     }
 
 }

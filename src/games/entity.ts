@@ -3,7 +3,7 @@ import { BaseEntity } from 'typeorm/repository/BaseEntity'
 import { IsString, IsIn } from 'class-validator'
 
 export type Color = 'red' | 'blue' | 'green' | 'yellow' | 'magenta'
-const colorArray: Array<Color> = ['red', 'blue', 'green', 'yellow', 'magenta']
+const colorArray: Array<Color> = ['red', 'blue', 'green', 'yellow', 'magenta'];
 
 export const defaultBoard = [
 	['o', 'o', 'o'],
