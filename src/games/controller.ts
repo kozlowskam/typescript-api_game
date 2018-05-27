@@ -1,5 +1,5 @@
 import { JsonController, Get, Post, Put, HttpCode, Body, Param, NotFoundError, BadRequestError } from 'routing-controllers'
-import Game, {randomColor, Color} from './entity'
+import Game, {randomColor, Color, Board, moves} from './entity'
 import {validate} from "class-validator";
 
 @JsonController()
@@ -14,7 +14,7 @@ async allGames() {
 @Post('/games')
 @HttpCode(201)
 async createGame(
-      @Body() game: {'color': Color, 'name': 'new name', 'board': 'board' }
+      @Body() game: {'color': Color, 'name': 'new name', 'board': Board }
     ) {
         game.color = randomColor()
         return Game.create(game).save()
@@ -23,10 +23,16 @@ async createGame(
 @Put('/games/:id')
 async updateGame(
     @Param('id') id: number,
-    @Body() update: {'color': Color, 'name': 'new name', 'board': 'board' }
+    @Body() update: {'color': Color, 'name': 'new name', 'board': Board }
 ) {
     let game = await Game.findOne(id)
     if (!game) throw new NotFoundError('Game not found!')
+
+    console.log(moves(game.board, update.board))
+    if (moves(game.board, update.board) > 1 ) {
+        throw new BadRequestError(`to many moves!`)
+    }
+
 
     Game.merge(game, update)
 
